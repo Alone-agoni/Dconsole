@@ -16,6 +16,10 @@ DConsole 是一个免费开源的，快速、简单的Thinkphp3.2命令行工具
 *  php console generate:m 生成model
 *  php console generate:v 生成view
 
+### 如何使用Dconsole
+
+将Dconsole下载后放在项目同级位置
+
 ### 如何使用Console一步生成功能
 
 1、配置
