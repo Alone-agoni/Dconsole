@@ -2,7 +2,7 @@
 $config = array(
 	'PROCECT_NAME' => 'Cms',
 	'APP_NAME' => 'Application',
-	'GENERATE_ALL' => true
+	'GENERATE_ALL' => false
 );
 
 $cmd = isset($argv[1]) ? $argv[1] : '';
