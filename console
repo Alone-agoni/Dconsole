@@ -1,0 +1,154 @@
+<?php
+$config = array(
+	'PROCECT_NAME' => 'Cms',
+	'APP_NAME' => 'Application',
+	'GENERATE_ALL' => true
+);
+
+$cmd = isset($argv[1]) ? $argv[1] : '';
+
+$console = new Console($cmd, $config);
+$console->run();
+
+class Console
+{
+	private $cmd = '';
+	private $route = '';
+	private $generateAll = false;
+	
+	function __construct($cmd, $config)
+	{
+		$this->cmd = $cmd;
+		$this->route = '../'.$config['PROCECT_NAME']."/".$config['APP_NAME'];
+		$this->generateAll = $config['GENERATE_ALL'];
+	}
+	
+	function run()
+	{
+		$generate = array(
+			'generate:c', 'generate:m', 'generate:v'
+		);
+		
+		if(!in_array($this->cmd, $generate)){
+			$this->error();
+		}
+		
+		$method = str_replace(':', '_', $this->cmd);
+		$this->$method();
+	}
+	
+	function generate_c()
+	{
+		fwrite(STDOUT, 'Please enter the controller name :');
+		$input = fgets(STDIN);
+		$inputItem = explode("/", $input);
+		if(count($inputItem) != 2){
+			echo "> Input format error!".PHP_EOL;
+			echo "> For example:Demo/Index".PHP_EOL;
+			die;
+		}
+		$module = ucfirst($inputItem[0]);
+		$name   = ucfirst(trim($inputItem[1]));
+		$controller = "{$this->route}/{$module}/Controller/{$name}Controller.class.php";
+		
+		if (is_file($controller)) {
+			echo "> File already exists!	{$controller}".PHP_EOL;
+		} else {
+			$template = file_get_contents("./template/Controller");
+			$template = sprintf($template, $module, $name);
+			@mkdir("{$this->route}/{$module}/Controller/", 0777, true);
+			file_put_contents($controller, $template);
+			echo "> File is generated success!	{$controller}".PHP_EOL;
+		}
+		
+		if($this->generateAll){
+			$model  = "{$this->route}/{$module}/Model/{$name}Model.class.php";
+			if (is_file($model)) {
+				echo "> File already exists!	{$model}".PHP_EOL;
+			} else {
+				$template = file_get_contents("./template/Model");
+				$template = sprintf($template, $module, $name);
+				@mkdir("{$this->route}/{$module}/Model/", 0777, true);
+				file_put_contents($model, $template);
+				echo "> File is generated success!	{$model}".PHP_EOL;
+			}
+		}
+		
+		if($this->generateAll){
+			$tpl = array(
+				'index', 'create', 'edit'
+			);
+			foreach($tpl as $val){
+				$view       = "{$this->route}/{$module}/View/{$name}/{$val}.html";
+				$template   = @file_get_contents("./template/{$val}");
+				if (is_file($view)) {
+					echo "> File already exists!	{$view}".PHP_EOL;
+				} else {
+					@mkdir("{$this->route}/{$module}/View/{$name}/", 0777, true);
+					file_put_contents($view, $template);
+					echo "> File is generated success!	{$view}".PHP_EOL;
+				}
+			}
+		}
+	}
+	
+	function generate_m()
+	{
+		fwrite(STDOUT, 'Please enter the model name :');
+		$input = fgets(STDIN);
+		$inputItem = explode("/", $input);
+		if(count($inputItem) != 2){
+			echo "> Input format error!".PHP_EOL;
+			echo "> For example:Demo/Article".PHP_EOL;
+			die;
+		}
+		$module = ucfirst($inputItem[0]);
+		$name   = ucfirst(trim($inputItem[1]));
+		$model  = "{$this->route}/{$module}/Model/{$name}Model.class.php";
+		
+		if (is_file($model)) {
+			echo "> File already exists!	{$model}".PHP_EOL;
+		} else {
+			$template = file_get_contents("./template/Model");
+			$template = sprintf($template, $module, $name);
+			@mkdir("{$this->route}/{$module}/Model/", 0777, true);
+			file_put_contents($model, $template);
+			echo "> File is generated success!	{$model}".PHP_EOL;
+		}
+	}
+	
+	function generate_v()
+	{
+		fwrite(STDOUT, 'Please enter the view name :');
+		$input = fgets(STDIN);
+		$inputItem  = explode("/", $input);
+		if(count($inputItem) != 3){
+			echo "> Input format error !".PHP_EOL;
+			echo "> For example:Demo/Article/index";
+			echo "> For example:Demo/Article/create";
+			die;
+		}
+		$module     = ucfirst($inputItem[0]);
+		$controller = ucfirst($inputItem[1]);
+		$name       = lcfirst(trim($inputItem[2]));
+		$view       = "{$this->route}/{$module}/View/{$controller}/{$name}.html";
+		$template   = @file_get_contents("./template/{$name}");
+		if (is_file($view)) {
+			echo "> File already exists!	{$view}".PHP_EOL;
+		} else {
+			@mkdir("{$this->route}/{$module}/View/{$controller}/", 0777, true);
+			file_put_contents($view, $template);
+			echo "> File is generated success!	{$view}".PHP_EOL;
+		}
+	}
+	
+	function error()
+	{
+		echo "--------------------------".PHP_EOL;
+		echo "> 1.php console generate:c".PHP_EOL;
+		echo "> 2.php console generate:m".PHP_EOL;
+		echo "> 3.php console generate:v".PHP_EOL;
+		echo "--------------------------".PHP_EOL;
+		die;
+	}
+}

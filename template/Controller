@@ -1,0 +1,67 @@
+<?php
+namespace %s\Controller;
+
+use Think\Controller;
+
+class %sController extends CommonController
+{
+	function index()
+	{
+		$this->lists = D('tableName')->order('id DESC')->select();
+		$this->display();
+	}
+	
+	function create()
+	{
+		if(IS_POST){
+			$data = array();
+			if(D('tableName')->create($data)){
+				if(D('tableName')->add()){
+					$this->success('新增[*]成功!');
+				}else{
+					$this->error('网络繁忙，请稍后再试!');
+				}
+			}else{
+				$this->error(D('tableName')->getError());
+			}
+		}else{
+			$this->display();
+		}
+	}
+	
+	function edit()
+	{
+		if(IS_POST){
+			$data = array(
+				'id' => I('id'),
+			);
+			if(D('tableName')->create($role)){
+				if(D('tableName')->add()){
+					$this->success('修改[*]成功!');
+				}else{
+					$this->error('网络繁忙，请稍后再试!');
+				}
+			}else{
+				$this->error(D('tableName')->getError());
+			}
+		}else{
+			$this->display();
+		}
+	}
+	
+	function remove()
+	{
+		$ajaxResponse = [];
+		if(IS_AJAX){
+			if(D('tableName')->delete()){
+				$ajaxResponse = ['code'=>6, 'msg'=>'删除[*]成功!'];
+			}else{
+				$ajaxResponse = ['code'=>5, 'msg'=>'网络繁忙，请稍后再试!'];
+			}
+		}else{
+			$ajaxResponse = ['code'=>5, 'msg'=>'请求错误!'];
+		}
+		
+		$this->ajaxReturn($ajaxResponse);		
+	}
+}
